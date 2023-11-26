@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Tech</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header class="menu-bar">
+        <div class="logo">
+            <p>Loja Tech</p>
+        </div>
+       
+        <a href="#" class="btn1">Comprar</a>
+    </header>   
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "../build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+
+        import * as THREE from './build/three.module.js'
+        import {OrbitControls} from './jsm/OrbitControls.js'
+        import {GLTFLoader} from './jsm/GLTFLoader.js'
+        import {RGBELoader} from './jsm/RGBELoader.js'
+
+        var camera, scene, renderer, mesh, controls;
+
+        init();
+        render();
+
+        function init(){
+            //CAMERA
+            camera = new THREE.PerspectiveCamera(80, window.innerWidth/window.innerHeight, 1, 1000);
+           
+            //iniciar CENA
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            console.log(scene);
+
+            //iniciar RENDERER
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmingToneMapping;
+            document.body.appendChild(renderer.domElement);
+
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFShadowMap;
+            renderer.autoClear = false;
+
+            /* teste de adiocionando box
+            const geometry = new THREE.BoxGeometry( 200, 200, 200)
+            const material = new THREE.MeshBasicMaterial();
+            mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            */
+
+            //CONTROLES da CENA
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.enablePan = false;
+            controls.dampingFactor = 0.05;
+            controls.minDistance = 3.8;
+            controls.maxDistance = 6;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 2;
+
+
+            //adicionando LUZ
+            const light = new THREE.AmbientLight(0x404040);
+            //scene.add(light);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.bias = -0.0001;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.heigth = 2048;
+            directionalLight.position.set(2, 2, 2);
+            scene.add(directionalLight);
+
+            const loader = new GLTFLoader().setPath('./models/');
+            loader.load('caixa.glb', function (glb) {
+
+                scene.add(glb.scene);
+
+                var box = new THREE.Box3().setFromObject(glb.scene);
+                var obj_size = box.getSize(new THREE.Vector3(0, 0, 0));
+                console.log(obj_size);
+
+                camera.position.z = obj_size.length();
+
+                box.getCenter(controls.target);
+
+                glb.scene.traverse(function(child){
+                    child.receiveShadow = true;
+                    child.castShadow = true;
+                });
+
+                const geometry = new THREE.PlaneGeometry(20, 20);
+                const material = new THREE.ShadowMaterial({opacity: 0.05});
+                const plane = new THREE.Mesh(geometry, material);
+                plane.receiveShadow = true;
+                plane.rotation.x = -Math.PI/2;
+                plane.position.y = -obj_size.y / 2;
+                scene.add(plane);
+            });
+
+            new RGBELoader()
+                .setPath('./')
+                .load('photo_studio_01_2k.hdr', function (texture){
+
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.environment = texture;
+                });
+        }
+
+
+        //RESPONSIVIDADE
+        window.onresize = function () {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function render(){
+
+            //loop
+            requestAnimationFrame(render);
+
+            //atualizar controle para efeito damping
+            if(controls)
+                controls.update();
+            
+            //renderizar cena    
+            renderer.render(scene, camera);
+        }
+
+
+    </script>
+</body>
+</html>
