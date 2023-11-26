@@ -35,6 +35,12 @@ Alguns requisitos devem ser observados:
 
 3. Os produtos não devem ficar flutuando no vazio, devem estar dentro de um ambiente realista, que forneça uma referencia do entorno do ambiente e da posição relativa do produto em relação a outros objetos da cena. 
 
+## Resultado da atividade 👨🏾‍💻📚:
+
+>OBS: A imagem utilizada é apenas ilustrada para aplicar os conhecimentos conforme pedido na atividade, sendo elas retiradas do site [sketchfab](https://sketchfab.com/feed)!!
+
+<img src="./imgs/imgResul-01.png" width=800> <img src="./imgs/imgResul-02.png" width=800> 
+
 ## Referências: 
 
 [1] 	MARSCHNER, Steve; SHIRLEY, Peter. "**Fundamentals of Computer Graphics**". 5th Edition CRC Press, 2021.
